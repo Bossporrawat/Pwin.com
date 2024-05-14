@@ -1,0 +1,214 @@
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+  }
+  .navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: rgba(100, 100, 100, 0.75);
+    color: white;
+    padding: 10px;
+  }
+  .logo img {
+    height: 40px; /* Adjust this value to fit the navbar */
+    margin-left: 20px;
+  }
+  .menu {
+    display: flex;
+    margin-left: auto;
+    color: white;
+  }
+  .menu-item {
+    padding: 10px;
+    display: flex;
+    align-items: center;
+  }
+  .menu-item:not(:last-child) {
+    margin-right: 10px;
+  }
+  .menu-icon {
+    margin-right: 5px;
+  }
+  .language-selector {
+    display: flex;
+    align-items: center;
+    margin: 10px;
+  }
+  .language-selector img {
+    height: 20px; /* Adjust this value to fit the navbar */
+    margin-right: 5px;
+  }
+  .book-now {
+    background-color: #F27516;
+    color: white;
+    padding: 10px 20px;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+  }
+  .link {
+    color: white;
+    font-weight: bold;
+    font-family: Arial, sans-serif;
+    text-decoration:none;
+  }
+  .image-container {
+    position: relative;
+    text-align: center;
+    text-decoration: none;
+  }
+  .image-container img {
+    width: 100%;
+    height: auto;
+  }
+  .image-container .text {
+    position: absolute;
+    bottom: 30%; /* Adjust this value to position the text above the button */
+    left: 0;
+    right: 0;
+    color: white;
+    font-size: 56px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+  }
+  .button {
+    position: absolute;
+    bottom: 10%; /* Adjust this value to position the button */
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #F27516;
+    color: white;
+    padding: 20px 40px;
+    text-align: center;
+    text-decoration: none;
+    font-size: 32px;
+    border: none;
+    cursor: pointer;
+  }
+  .footerbg1 {
+    background-color: #F27516;
+    display: flex;
+    margin-left: auto;
+    padding: 5px;
+  }
+  .footerbg2 {
+    background-color: black;
+    text-align: center;
+    color: white;
+    padding: 5px;
+  }
+  .bgconten1 {
+    background-color: #F27516;
+    padding: 40px;
+    display: flex;
+  }
+  .stconten1 {
+    padding: 25px;
+    color: white;
+    text-align: center;
+    size: 50%;
+    flex: 1;
+  }
+  .font1 {
+    font-size: 36px;
+    text-decoration: solid;
+  }
+  .font2 {
+    font-size: 24px;
+  }
+  .bgconten2 {
+    background-color: white;
+    padding: 40px;
+  }
+  .stconten2 {
+    font-size: 64px;
+    color: #F27516;
+    text-align: center;
+    text-decoration: solid;
+  }
+  .stconten3 {
+    display: flex;
+    flex: 1;
+    padding: 10px;
+  }
+  .step1 {
+    padding-left: 15px;
+    background-color: #F27516;
+    padding-right: 5px;
+    padding-top: 25px;
+    padding-bottom: 25px;
+    border-radius: 10%;
+    flex: 1;
+  }
+  .font3 {
+    font-size: 24px;
+    text-decoration: solid;
+    color: white;
+  }
+  .font4 {
+    font-size: 20px;
+    text-decoration: none;
+    color: white;
+  }
+  .step2 {
+    padding-left: 5px;
+    padding-right: 5px;
+    padding-top: 25px;
+    padding-bottom: 25px;
+    background-color: #F27516;
+    border-radius: 10%;
+    flex: 1;
+  }
+  .step3 {
+    padding-left: 5px;
+    padding-right: 15px;
+    padding-top: 25px;
+    padding-bottom: 25px;
+    background-color: #F27516;
+    border-radius: 10%;
+    flex: 1;
+  }
+  .circle {
+    /*shape-outside: circle(20%);*/
+    width: 25%;
+    height: 25%;
+    background-color: white;
+    border-radius: 50%;
+    /*margin-left: 37.5%;*/
+    line-height: 1.5;
+    display: inline-block;
+    vertical-align: middle;
+  }
+  .bgconten3 {
+    background-color: #F27516;
+    padding: 40px;
+    text-align: center;
+  }
+  .font5 {
+    color: white;
+    text-decoration: solid;
+    font-size: 45px;
+  }
+  .bgconten4 {
+    background-color: white;
+    padding: 40px;
+  }
+  .conten3s {
+    display: flex;
+    flex: 1;
+    padding: 10px;
+    text-align: center;
+  }
+  .conten3s img {
+    width: 30%;
+    height: 30%;
+  }
+  .conten3s-1 {
+    flex: 1;
+  }
+  .conten3s-2 {
+    flex: 1;
+  }
+  .conten3s-3 {
+    flex: 1;
+  }
