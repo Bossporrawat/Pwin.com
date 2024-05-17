@@ -1,45 +1,31 @@
 <!DOCTYPE html>
-  <html>
-    <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <link rel="icon" type="image/x-icon" href="../image/logo.jpg">
-      <script src="../js/bookingscript.js"></script>
-      <title id="text">เรียกพี่วิน</title>
-      <link rel="stylesheet" type="text/css" href="../css/style.css">
-      <link rel="stylesheet" type="text/css" href="../css/bookingstyle.css">
-      <script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDUsOKvDiaUqJoaLyzdXeGlQr8BXA--3Js&callback=console.debug&libraries=maps,marker&v=beta"></script>
-    </head>
-    <body>
-      <div class="navbar">
-        <a href="../index.html">
-          <div class="logo">
-            <img src="../image/logoremovebg.png" alt="Logo">
-          </div>
-        </a>
-        <div class="menu">
-          <a href="../html/helpcenter.html" class="link">
-            <div class="menu-item" id="text1">
-              ศูนย์ช่วยเหลือ
-            </div>
-          </a>
-        </div>
-        <div class="language-selector">
-          <img id="flag" src="../image/earth.svg" alt="Flag">
-          <select id="language" name="language" onchange="changeLanguage()" style="background-color: rgba(100, 100, 100, 0); color: white;">
-            <option value="en">EN</option>
-            <option value="th" selected>TH</option>
-          </select>
-        </div>
-        <!--<button onclick="location.href='../html/booking.html'" class="book-now" id="text2">จองตอนนี้</button>-->
-      </div>
-      <div id="map">
-        <gmp-map center="14.072676658630371,100.60607147216797" zoom="7" map-id="DEMO_MAP_ID">
-          <gmp-advanced-marker position="14.072676658630371,100.60607147216797" title="My location"></gmp-advanced-marker>
-        </gmp-map>
-      </div>
-      <script
-      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDUsOKvDiaUqJoaLyzdXeGlQr8BXA--3Js&callback=initMap&v=weekly&solution_channel=GMP_CCS_geolocation_v1"
-      defer></script>
-    </body>
-  </html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <script src='https://api.mapbox.com/mapbox-gl-js/v1.12.0/mapbox-gl.js'></script>
+  <link href='https://api.mapbox.com/mapbox-gl-js/v1.12.0/mapbox-gl.css' rel='stylesheet' />
+  <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-directions/v4.1.0/mapbox-gl-directions.js"></script>
+  <link
+    rel="stylesheet"
+    href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-directions/v4.1.0/mapbox-gl-directions.css"
+    type="text/css"
+  />
+  <title>Google Maps Clone</title>
+  <style>
+    body {
+      margin: 0;
+    }
+
+    #map {
+      height: 100vh;
+      width: 100vw;
+    }
+  </style>
+  <script src="../js/bookingscript.js" defer></script>
+</head>
+<body>
+  <div id='map'></div>
+</body>
+</html>

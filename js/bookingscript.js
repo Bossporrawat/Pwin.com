@@ -1,62 +1,32 @@
-/**
- * @license
- * Copyright 2019 Google LLC. All Rights Reserved.
- * SPDX-License-Identifier: Apache-2.0
- */
-// Note: This example requires that you consent to location sharing when
-// prompted by your browser. If you see the error "The Geolocation service
-// failed.", it means you probably did not give permission for the browser to
-// locate you.
-let map, infoWindow;
+mapboxgl.accessToken =
+  "pk.eyJ1IjoiYm9zc2RkZGRkIiwiYSI6ImNsd2FtaW5xNzBmYnkyaW8wemU4ZHUzdjgifQ.fvFDbx0icA7o3wVTB-bVkA"
 
-function initMap() {
-  map = new google.maps.Map(document.getElementById("map"), {
-    center: { lat: -34.397, lng: 150.644 },
-    zoom: 6,
-  });
-  infoWindow = new google.maps.InfoWindow();
+navigator.geolocation.getCurrentPosition(successLocation, errorLocation, {
+  enableHighAccuracy: true
+})
 
-  const locationButton = document.createElement("button");
-
-  locationButton.textContent = "Pan to Current Location";
-  locationButton.classList.add("custom-map-control-button");
-  map.controls[google.maps.ControlPosition.TOP_CENTER].push(
-    locationButton
-  );
-  locationButton.addEventListener("click", () => {
-    // Try HTML5 geolocation.
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const pos = {
-            lat: position.coords.latitude,
-            lng: position.coords.longitude,
-          };
-
-          infoWindow.setPosition(pos);
-          infoWindow.setContent("Location found.");
-          infoWindow.open(map);
-          map.setCenter(pos);
-        },
-        () => {
-          handleLocationError(true, infoWindow, map.getCenter());
-        }
-      );
-    } else {
-      // Browser doesn't support Geolocation
-      handleLocationError(false, infoWindow, map.getCenter());
-    }
-  });
+function successLocation(position) {
+  setupMap([position.coords.longitude, position.coords.latitude])
 }
 
-function handleLocationError(browserHasGeolocation, infoWindow, pos) {
-  infoWindow.setPosition(pos);
-  infoWindow.setContent(
-    browserHasGeolocation
-      ? "Error: The Geolocation service failed."
-      : "Error: Your browser doesn't support geolocation."
-  );
-  infoWindow.open(map);
+function errorLocation() {
+  setupMap([-2.24, 53.48])
 }
 
-window.initMap = initMap;
+function setupMap(center) {
+  const map = new mapboxgl.Map({
+    container: "map",
+    style: "mapbox://styles/mapbox/streets-v11",
+    center: center,
+    zoom: 14
+  })
+
+  const nav = new mapboxgl.NavigationControl()
+  map.addControl(nav)
+
+  var directions = new MapboxDirections({
+    accessToken: mapboxgl.accessToken
+  })
+
+  map.addControl(directions, "top-left")
+}
