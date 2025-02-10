@@ -76,13 +76,14 @@ body {
     bottom: 10%; /* Adjust this value to position the button */
     left: 50%;
     transform: translateX(-50%);
-    background-color: #142781;
+    background-color: #d51924;
     color: white;
     padding: 20px 40px;
     text-align: center;
     text-decoration: none;
     font-size: 32px;
-    border: none;
+    /*border: none;*/
+    border: 2px solid white;
     cursor: pointer;
   }
   .footerbg1 {

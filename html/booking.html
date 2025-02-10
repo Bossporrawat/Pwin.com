@@ -3,7 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/x-icon" href="../image/tusc.jpg">
     <title>Google Maps - Click to Select Route</title>
+    <link rel="stylesheet" type="text/css" href="../css/style.css" />
+    <script src="../js/bookingscript.js"></script>
     <style>
         #map {
             height: 500px;
@@ -34,102 +37,46 @@
         .btn-start { background: #28a745; color: white; }
         .btn-end { background: #dc3545; color: white; }
     </style>
-    <script>
-        let map;
-        let selectedLocation = null;
-        let markers = { start: null, end: null };
-        let directionsService;
-        let directionsRenderer;
-
-        function initMap() {
-            map = new google.maps.Map(document.getElementById("map"), {
-                center: { lat: 14.071325, lng: 100.610553 }, // พิกัดของกรุงเทพฯ
-                zoom: 15.5,
-                gestureHandling: "none", // ปิดการเลื่อนแผนที่ด้วยเมาส์ & ทัช
-                zoomControl: false, // ปิดปุ่มควบคุมซูม
-                streetViewControl: false, // ปิด Street View
-                mapTypeControl: true // ปิดตัวเลือกประเภทแผนที่
-            });
-
-            directionsService = new google.maps.DirectionsService();
-            directionsRenderer = new google.maps.DirectionsRenderer();
-            directionsRenderer.setMap(map);
-
-            // เมื่อผู้ใช้คลิกบนแผนที่
-            map.addListener("click", function(event) {
-                selectedLocation = event.latLng;
-                document.getElementById("popup").style.display = "block"; // เปิดป๊อปอัป
-            });
-        }
-
-        function setLocation(type) {
-            if (!selectedLocation) return;
-
-            // ลบหมุดเดิมถ้ามี
-            if (markers[type]) {
-                markers[type].setMap(null);
-            }
-
-            // ปักหมุดใหม่
-            markers[type] = new google.maps.Marker({
-                position: selectedLocation,
-                map: map,
-                label: type === "start" ? "S" : "E",
-                title: type === "start" ? "จุดเริ่มต้น" : "จุดปลายทาง"
-            });
-
-            // ปิดป๊อปอัป
-            document.getElementById("popup").style.display = "none";
-
-            // ถ้ามีทั้ง Start และ End แล้ว ให้คำนวณเส้นทาง
-            if (markers.start && markers.end) {
-                calculateRoute();
-            }
-        }
-
-        function calculateRoute() {
-            let start = markers.start.getPosition();
-            let end = markers.end.getPosition();
-
-            let request = {
-                origin: start,
-                destination: end,
-                travelMode: "DRIVING" // เปลี่ยนเป็น "WALKING" หรือ "BICYCLING" ได้
-            };
-
-            directionsService.route(request, function(result, status) {
-                if (status === "OK") {
-                    directionsRenderer.setDirections(result);
-                    displayDistance(result);
-                } else {
-                    alert("ไม่สามารถคำนวณเส้นทางได้: " + status);
-                }
-            });
-        }
-
-        function displayDistance(result) {
-            let route = result.routes[0].legs[0]; // ข้อมูลเส้นทาง
-            let distanceText = route.distance.text; // ระยะทาง
-            let durationText = route.duration.text; // ระยะเวลา
-            document.getElementById("info").innerHTML = `🚗 ระยะทาง: ${distanceText} | ⏳ ใช้เวลา: ${durationText}`;
-        }
-    </script>
 </head>
 <body>
-    <h2>คลิกบนแผนที่เพื่อเลือกต้นทางหรือปลายทาง</h2>
-    <p>📍 คลิกบนแผนที่ แล้วเลือกตำแหน่งว่าเป็น "จุดเริ่มต้น" หรือ "จุดปลายทาง"</p>
-    <div id="map"></div>
-
-    <!-- ป๊อปอัปเลือก Start / End -->
-    <div id="popup">
-        <h3>เลือกตำแหน่งนี้เป็น:</h3>
-        <button class="btn-start" onclick="setLocation('start')">📍 จุดเริ่มต้น</button>
-        <button class="btn-end" onclick="setLocation('end')">🏁 จุดปลายทาง</button>
+    <div class="navbar">
+        <a href="../index.html">
+          <div class="logo">
+            <img src="../image/logoremovebg.png" alt="Logo">
+          </div>
+        </a>
+        <div class="menu">
+          <a href="../html/helpcenter.html" class="link">
+            <div class="menu-item" id="text1">
+              ศูนย์ช่วยเหลือ
+            </div>
+          </a>
+        </div>
+        <div class="language-selector">
+          <img id="flag" src="../image/earth.svg" alt="Flag">
+          <select id="language" name="language" onchange="changeLanguage()" style="background-color: rgba(100, 100, 100, 0); color: white;">
+            <option value="en">EN</option>
+            <option value="th" selected>TH</option>
+          </select>
+        </div>
+        <button onclick="location.href='../html/booking.html'" class="book-now" id="text2">เช็คราคาตอนนี้</button>
     </div>
+    <div style="margin: 20px;">
+        <h2>คลิกบนแผนที่เพื่อเลือกต้นทางหรือปลายทาง</h2>
+        <p>📍 คลิกบนแผนที่ แล้วเลือกตำแหน่งว่าเป็น "จุดเริ่มต้น" หรือ "จุดปลายทาง"</p>
+        <div id="map" style="border: 2px solid black;"></div>
 
-    <h3 id="info">🚗 ระยะทาง & เวลา จะปรากฏที่นี่</h3>
+        <!-- ป๊อปอัปเลือก Start / End -->
+        <div id="popup">
+            <h3>เลือกตำแหน่งนี้เป็น:</h3>
+            <button class="btn-start" onclick="setLocation('start')">📍 จุดเริ่มต้น</button>
+            <button class="btn-end" onclick="setLocation('end')">🏁 จุดปลายทาง</button>
+        </div>
 
-    <!-- โหลด Google Maps API -->
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDT2NGc38xytYGpxqMSxADbiVA7WmDRjro&callback=initMap" async defer></script>
+        <h3 id="info">🚗 ระยะทาง & เวลา จะปรากฏที่นี่</h3>
+
+        <!-- โหลด Google Maps API -->
+        <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDT2NGc38xytYGpxqMSxADbiVA7WmDRjro&callback=initMap" async defer></script>
+    </div>
 </body>
 </html>
