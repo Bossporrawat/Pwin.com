@@ -30,7 +30,7 @@ function changeLanguage() {
       textElement.innerText = 'Call Pwin'
       textElement1.innerText = 'Help Center'
       textElement2.innerText = 'Check Price Now'
-      textElement3.innerText = 'Call Pwin for no more than 15 ฿ throughout the university.';
+      textElement3.innerText = 'Call Pwin for no more than 20 ฿ throughout the university.';
       textElement4.innerText = 'Get Started'
       textElement5.innerText = 'Convenient Safe and Standardized'
       textElement6.innerText = 'Pwin Calling Service is a service for Thammasat University Rangsit Center students to check Pwin prices within the university and is a platform for complaints. You can check Pwin prices or check Pwin information on this website.'
@@ -55,7 +55,7 @@ function changeLanguage() {
       textElement.innerText = 'เรียกพี่วิน'
       textElement1.innerText = 'ศูนย์ช่วยเหลือ'
       textElement2.innerText = 'เช็คราคาตอนนี้'
-      textElement3.innerText = 'เรียกพี่วินไม่เกิน 15 ฿ ทั่วมหาวิทยาลัย'
+      textElement3.innerText = 'เรียกพี่วินไม่เกิน 20 ฿ ทั่วมหาวิทยาลัย'
       textElement4.innerText = 'เริ่มต้น'
       textElement5.innerText = 'สะดวก ปลอดภัย มีมาตรฐาน'
       textElement6.innerText = 'บริการเช็คพี่วิน คือบริการสำหรับนักศึกษามหาวิทยาลัยธรรมศาตร์ศูนย์รังสิตในการเช็คราคาพี่วินเขียนภายในมหาวิทยาลัยและเป็นแพลตฟอร์มในการร้องเรียนโดยสามารถเช็คราคาพี่วินหรือเช็คข้อมูลพี่วินได้ภายในเว็บไซต์นี้'

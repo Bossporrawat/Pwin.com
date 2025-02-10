@@ -1,135 +1,158 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="th">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Google Maps - Click to Select Route</title>
+    <title>Google Maps - จำกัดพื้นที่เลือกจุด</title>
     <style>
         #map {
             height: 500px;
             width: 100%;
         }
-        /* ป๊อปอัปสไตล์ */
-        #popup {
+        .popup {
             display: none;
             position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
             background: white;
-            padding: 20px;
-            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
-            border-radius: 8px;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             z-index: 1000;
             text-align: center;
         }
-        #popup button {
-            margin: 10px;
-            padding: 10px 15px;
-            cursor: pointer;
+        .popup button {
+            margin: 5px;
+            padding: 8px 12px;
             border: none;
-            border-radius: 5px;
-            font-size: 16px;
+            cursor: pointer;
         }
-        .btn-start { background: #28a745; color: white; }
-        .btn-end { background: #dc3545; color: white; }
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            z-index: 999;
+        }
     </style>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDT2NGc38xytYGpxqMSxADbiVA7WmDRjro&libraries=geometry&callback=initMap" async defer></script>
+</head>
+<body>
+    <h2>เลือกจุดเริ่มต้นและปลายทาง (พื้นที่นอกเป็นสีดำ)</h2>
+    <div id="map"></div>
+
+    <div class="overlay" id="overlay"></div>
+    <div class="popup" id="popup">
+        <p>เลือกประเภทตำแหน่ง:</p>
+        <button onclick="setStart()">ต้นทาง</button>
+        <button onclick="setEnd()">ปลายทาง</button>
+        <button onclick="closePopup()">ยกเลิก</button>
+    </div>
+
     <script>
         let map;
-        let selectedLocation = null;
-        let markers = { start: null, end: null };
-        let directionsService;
-        let directionsRenderer;
+        let startMarker = null, endMarker = null;
+        let startPos = null, endPos = null;
+        let directionsService, directionsRenderer;
+        let clickPos = null;
 
         function initMap() {
             map = new google.maps.Map(document.getElementById("map"), {
-                center: { lat: 14.071325, lng: 100.610553 }, // พิกัดของกรุงเทพฯ
-                zoom: 15.5,
-                gestureHandling: "none", // ปิดการเลื่อนแผนที่ด้วยเมาส์ & ทัช
-                zoomControl: false, // ปิดปุ่มควบคุมซูม
-                streetViewControl: false, // ปิด Street View
-                mapTypeControl: true // ปิดตัวเลือกประเภทแผนที่
+                center: { lat: 13.7563, lng: 100.5018 }, // กรุงเทพฯ
+                zoom: 12,
             });
 
             directionsService = new google.maps.DirectionsService();
-            directionsRenderer = new google.maps.DirectionsRenderer();
-            directionsRenderer.setMap(map);
+            directionsRenderer = new google.maps.DirectionsRenderer({ map: map });
 
-            // เมื่อผู้ใช้คลิกบนแผนที่
-            map.addListener("click", function(event) {
-                selectedLocation = event.latLng;
-                document.getElementById("popup").style.display = "block"; // เปิดป๊อปอัป
-            });
-        }
+            // พื้นที่ที่เลือกได้
+            const allowedBounds = [
+                { lat: 13.730, lng: 100.480 },
+                { lat: 13.730, lng: 100.520 },
+                { lat: 13.770, lng: 100.520 },
+                { lat: 13.770, lng: 100.480 }
+            ];
 
-        function setLocation(type) {
-            if (!selectedLocation) return;
-
-            // ลบหมุดเดิมถ้ามี
-            if (markers[type]) {
-                markers[type].setMap(null);
-            }
-
-            // ปักหมุดใหม่
-            markers[type] = new google.maps.Marker({
-                position: selectedLocation,
-                map: map,
-                label: type === "start" ? "S" : "E",
-                title: type === "start" ? "จุดเริ่มต้น" : "จุดปลายทาง"
+            // พื้นที่ที่ไม่สามารถเลือกได้ (สีดำ)
+            const maskPolygon = new google.maps.Polygon({
+                paths: allowedBounds, // ใช้ "allowedBounds" สำหรับพื้นที่ที่เลือกได้
+                strokeOpacity: 0,
+                fillColor: "#000000", // พื้นที่ที่ไม่สามารถเลือกได้
+                fillOpacity: 0.7,
+                map: map
             });
 
-            // ปิดป๊อปอัป
-            document.getElementById("popup").style.display = "none";
-
-            // ถ้ามีทั้ง Start และ End แล้ว ให้คำนวณเส้นทาง
-            if (markers.start && markers.end) {
-                calculateRoute();
-            }
-        }
-
-        function calculateRoute() {
-            let start = markers.start.getPosition();
-            let end = markers.end.getPosition();
-
-            let request = {
-                origin: start,
-                destination: end,
-                travelMode: "DRIVING" // เปลี่ยนเป็น "WALKING" หรือ "BICYCLING" ได้
-            };
-
-            directionsService.route(request, function(result, status) {
-                if (status === "OK") {
-                    directionsRenderer.setDirections(result);
-                    displayDistance(result);
+            // ตรวจสอบเมื่อคลิกบนแผนที่
+            google.maps.event.addListener(map, "click", function(event) {
+                if (google.maps.geometry.poly.containsLocation(event.latLng, maskPolygon)) {
+                    clickPos = event.latLng;
+                    openPopup(); // เปิดป๊อปอัปเมื่อคลิกในพื้นที่ที่เลือกได้
                 } else {
-                    alert("ไม่สามารถคำนวณเส้นทางได้: " + status);
+                    alert("กรุณาเลือกจุดในพื้นที่ที่กำหนด!");
                 }
             });
         }
 
-        function displayDistance(result) {
-            let route = result.routes[0].legs[0]; // ข้อมูลเส้นทาง
-            let distanceText = route.distance.text; // ระยะทาง
-            let durationText = route.duration.text; // ระยะเวลา
-            document.getElementById("info").innerHTML = `🚗 ระยะทาง: ${distanceText} | ⏳ ใช้เวลา: ${durationText}`;
+        function openPopup() {
+            document.getElementById("overlay").style.display = "block";
+            document.getElementById("popup").style.display = "block";
+        }
+
+        function closePopup() {
+            document.getElementById("overlay").style.display = "none";
+            document.getElementById("popup").style.display = "none";
+        }
+
+        function setStart() {
+            if (startMarker) startMarker.setMap(null);
+            startMarker = new google.maps.Marker({
+                position: clickPos,
+                map: map,
+                label: "S",
+                animation: google.maps.Animation.DROP
+            });
+            startPos = clickPos;
+            closePopup();
+            calculateRoute();
+        }
+
+        function setEnd() {
+            if (endMarker) endMarker.setMap(null);
+            endMarker = new google.maps.Marker({
+                position: clickPos,
+                map: map,
+                label: "E",
+                animation: google.maps.Animation.DROP
+            });
+            endPos = clickPos;
+            closePopup();
+            calculateRoute();
+        }
+
+        function calculateRoute() {
+            if (!startPos || !endPos) return;
+
+            directionsService.route(
+                {
+                    origin: startPos,
+                    destination: endPos,
+                    travelMode: google.maps.TravelMode.DRIVING
+                },
+                (response, status) => {
+                    if (status === "OK") {
+                        directionsRenderer.setDirections(response);
+                        const distance = response.routes[0].legs[0].distance.text;
+                        alert(`ระยะทาง: ${distance}`);
+                    } else {
+                        alert("ไม่สามารถคำนวณเส้นทางได้!");
+                    }
+                }
+            );
         }
     </script>
-</head>
-<body>
-    <h2>คลิกบนแผนที่เพื่อเลือกต้นทางหรือปลายทาง</h2>
-    <p>📍 คลิกบนแผนที่ แล้วเลือกตำแหน่งว่าเป็น "จุดเริ่มต้น" หรือ "จุดปลายทาง"</p>
-    <div id="map"></div>
-
-    <!-- ป๊อปอัปเลือก Start / End -->
-    <div id="popup">
-        <h3>เลือกตำแหน่งนี้เป็น:</h3>
-        <button class="btn-start" onclick="setLocation('start')">📍 จุดเริ่มต้น</button>
-        <button class="btn-end" onclick="setLocation('end')">🏁 จุดปลายทาง</button>
-    </div>
-
-    <h3 id="info">🚗 ระยะทาง & เวลา จะปรากฏที่นี่</h3>
-
-    <!-- โหลด Google Maps API -->
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDT2NGc38xytYGpxqMSxADbiVA7WmDRjro&callback=initMap" async defer></script>
 </body>
 </html>
