@@ -1,158 +1,188 @@
 <!DOCTYPE html>
-<html lang="th">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Google Maps - จำกัดพื้นที่เลือกจุด</title>
+    <title>Data Layer: Polygon with Route Calculation</title>
+    <link rel="stylesheet" type="text/css" href="./style.css" />
+    <script type="module" src="./index.js"></script>
     <style>
         #map {
-            height: 500px;
-            width: 100%;
+            height: 100%;
+        }
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+        #info {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: white;
+            padding: 10px;
+            box-shadow: 0 0 5px gray;
+            text-align: center;
+            border-radius: 8px;
         }
         .popup {
-            display: none;
             position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
             background: white;
-            padding: 15px;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            z-index: 1000;
+            padding: 20px;
+            box-shadow: 0 0 10px gray;
             text-align: center;
+            border-radius: 10px;
+            display: none;
+            z-index: 1000;
         }
         .popup button {
             margin: 5px;
-            padding: 8px 12px;
+            padding: 10px;
             border: none;
             cursor: pointer;
+            border-radius: 5px;
         }
-        .overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            display: none;
-            z-index: 999;
+        .popup button:hover {
+            background: #ddd;
         }
     </style>
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDT2NGc38xytYGpxqMSxADbiVA7WmDRjro&libraries=geometry&callback=initMap" async defer></script>
-</head>
-<body>
-    <h2>เลือกจุดเริ่มต้นและปลายทาง (พื้นที่นอกเป็นสีดำ)</h2>
-    <div id="map"></div>
-
-    <div class="overlay" id="overlay"></div>
-    <div class="popup" id="popup">
-        <p>เลือกประเภทตำแหน่ง:</p>
-        <button onclick="setStart()">ต้นทาง</button>
-        <button onclick="setEnd()">ปลายทาง</button>
-        <button onclick="closePopup()">ยกเลิก</button>
-    </div>
-
     <script>
         let map;
-        let startMarker = null, endMarker = null;
-        let startPos = null, endPos = null;
+        let markers = {};
+        let selectedLocation = null;
         let directionsService, directionsRenderer;
-        let clickPos = null;
 
         function initMap() {
             map = new google.maps.Map(document.getElementById("map"), {
-                center: { lat: 13.7563, lng: 100.5018 }, // กรุงเทพฯ
-                zoom: 12,
+                zoom: 15.5,
+                center: { lat: 14.071328, lng: 100.610503 },
             });
 
             directionsService = new google.maps.DirectionsService();
             directionsRenderer = new google.maps.DirectionsRenderer({ map: map });
 
-            // พื้นที่ที่เลือกได้
-            const allowedBounds = [
-                { lat: 13.730, lng: 100.480 },
-                { lat: 13.730, lng: 100.520 },
-                { lat: 13.770, lng: 100.520 },
-                { lat: 13.770, lng: 100.480 }
+            const outerCoords = [
+                { lat: -90, lng: 0 }, { lat: 90, lng: 0 },
+                { lat: 90, lng: 180 }, { lat: -90, lng: 180 },
+            ];
+            const innerCoords1 = [
+                { lat: 14.078706, lng: 100.594131 },
+                { lat: 14.078706, lng: 100.617528 },
+                { lat: 14.065233, lng: 100.617528 },
+                { lat: 14.065233, lng: 100.594131 },
             ];
 
-            // พื้นที่ที่ไม่สามารถเลือกได้ (สีดำ)
-            const maskPolygon = new google.maps.Polygon({
-                paths: allowedBounds, // ใช้ "allowedBounds" สำหรับพื้นที่ที่เลือกได้
-                strokeOpacity: 0,
-                fillColor: "#000000", // พื้นที่ที่ไม่สามารถเลือกได้
-                fillOpacity: 0.7,
-                map: map
+            map.data.add({
+                geometry: new google.maps.Data.Polygon([outerCoords, innerCoords1]),
             });
 
-            // ตรวจสอบเมื่อคลิกบนแผนที่
-            google.maps.event.addListener(map, "click", function(event) {
-                if (google.maps.geometry.poly.containsLocation(event.latLng, maskPolygon)) {
-                    clickPos = event.latLng;
-                    openPopup(); // เปิดป๊อปอัปเมื่อคลิกในพื้นที่ที่เลือกได้
-                } else {
-                    alert("กรุณาเลือกจุดในพื้นที่ที่กำหนด!");
-                }
+            map.data.setStyle({
+                fillColor: "red",
+                strokeColor: "black",
+                strokeWeight: 2,
+                fillOpacity: 0.5,
+            });
+
+            let wasClickedInside = false;
+
+            // ตรวจจับการคลิกภายในโพลิกอน
+            map.data.addListener("click", function (event) {
+                alert("ผิดแล้ว")
+            });
+
+            // ตรวจจับการคลิกนอกโพลิกอน
+            google.maps.event.addListener(map, "click", function (event) {
+                setTimeout(() => {
+                    if (!wasClickedInside) {
+                        selectedLocation = event.latLng;
+                        showPopup();
+                    }
+                    wasClickedInside = false;
+                }, 100);
             });
         }
 
-        function openPopup() {
-            document.getElementById("overlay").style.display = "block";
+        function showPopup() {
             document.getElementById("popup").style.display = "block";
         }
 
         function closePopup() {
-            document.getElementById("overlay").style.display = "none";
             document.getElementById("popup").style.display = "none";
         }
 
-        function setStart() {
-            if (startMarker) startMarker.setMap(null);
-            startMarker = new google.maps.Marker({
-                position: clickPos,
-                map: map,
-                label: "S",
-                animation: google.maps.Animation.DROP
-            });
-            startPos = clickPos;
-            closePopup();
-            calculateRoute();
-        }
+        function setLocation(type) {
+            if (!selectedLocation) return;
 
-        function setEnd() {
-            if (endMarker) endMarker.setMap(null);
-            endMarker = new google.maps.Marker({
-                position: clickPos,
+            if (markers[type]) {
+                markers[type].setMap(null);
+            }
+
+            markers[type] = new google.maps.Marker({
+                position: selectedLocation,
                 map: map,
-                label: "E",
-                animation: google.maps.Animation.DROP
+                label: type === "start" ? "S" : "E",
+                title: type === "start" ? "จุดเริ่มต้น" : "จุดปลายทาง"
             });
-            endPos = clickPos;
+
             closePopup();
-            calculateRoute();
+
+            if (markers.start && markers.end) {
+                calculateRoute();
+            }
         }
 
         function calculateRoute() {
-            if (!startPos || !endPos) return;
+            let start = markers.start.getPosition();
+            let end = markers.end.getPosition();
 
-            directionsService.route(
-                {
-                    origin: startPos,
-                    destination: endPos,
-                    travelMode: google.maps.TravelMode.DRIVING
-                },
-                (response, status) => {
-                    if (status === "OK") {
-                        directionsRenderer.setDirections(response);
-                        const distance = response.routes[0].legs[0].distance.text;
-                        alert(`ระยะทาง: ${distance}`);
-                    } else {
-                        alert("ไม่สามารถคำนวณเส้นทางได้!");
-                    }
+            let request = {
+                origin: start,
+                destination: end,
+                travelMode: "DRIVING"
+            };
+
+            directionsService.route(request, function(result, status) {
+                if (status === "OK") {
+                    directionsRenderer.setDirections(result);
+                    displayDistance(result);
+                } else {
+                    alert("ไม่สามารถคำนวณเส้นทางได้: " + status);
                 }
-            );
+            });
+        }
+
+        function displayDistance(result) {
+            let route = result.routes[0].legs[0]; 
+            let distanceText = route.distance.text; 
+            let durationText = route.duration.text; 
+            let price;
+
+            if(route.distance.value <= 500){
+                price = 10;
+            } else if(route.distance.value <= 2000){
+                price = 15;
+            } else {
+                price = 20;
+            }
+
+            document.getElementById("info").innerHTML = 
+              `🚗 ระยะทาง: ${distanceText} | ⏳ ใช้เวลา: ${durationText} | 💲 ราคา: ${price} Baht`;
         }
     </script>
+</head>
+<body>
+    <div id="map"></div>
+    <div id="info">เลือกจุดเริ่มต้นและปลายทาง</div>
+
+    <div class="popup" id="popup">
+        <p>เลือกประเภทตำแหน่ง:</p>
+        <button onclick="setLocation('start')" style="background: lightblue;">ต้นทาง</button>
+        <button onclick="setLocation('end')" style="background: lightgreen;">ปลายทาง</button>
+        <button onclick="closePopup()" style="background: lightcoral;">ยกเลิก</button>
+    </div>
+
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDT2NGc38xytYGpxqMSxADbiVA7WmDRjro&callback=initMap&v=weekly" defer></script>
 </body>
 </html>
